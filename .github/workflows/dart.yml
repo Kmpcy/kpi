@@ -15,12 +15,18 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.16.0'  # تأكد من استخدام إصدار Flutter المناسب
+          flutter-version: '3.16.0'
+
+      - name: Print current directory
+        run: pwd
+
+      - name: List files in root directory
+        run: ls -la
 
       - name: Find project root
         id: find-root
         run: |
-          ROOT_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
+          ROOT_DIR=$(find . -type f -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
           echo "Project root found at: $ROOT_DIR"
           echo "root-dir=$ROOT_DIR" >> $GITHUB_ENV
 
