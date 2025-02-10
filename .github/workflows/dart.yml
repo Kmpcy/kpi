@@ -20,8 +20,8 @@ jobs:
 
     - name: Install dependencies
       run: flutter pub get
-      working-directory: ./kpi  # تأكد من وضع اسم مجلد مشروعك الصحيح هنا
+      working-directory: ./fifvo
 
     - name: Build iOS
       run: flutter build ios --release --no-codesign
-      working-directory: ./kpi
+      working-directory: ./fifvo
