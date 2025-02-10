@@ -17,19 +17,26 @@ jobs:
         with:
           flutter-version: '3.16.0'  # تأكد من استخدام إصدار Flutter المناسب
 
+      - name: Find project root
+        id: find-root
+        run: |
+          ROOT_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
+          echo "Project root found at: $ROOT_DIR"
+          echo "root-dir=$ROOT_DIR" >> $GITHUB_ENV
+
       - name: Verify project structure
-        run: ls -la
+        run: ls -la ${{ env.root-dir }}
 
       - name: Install dependencies
         run: flutter pub get
-        working-directory: ./
+        working-directory: ${{ env.root-dir }}
 
       - name: Build iOS app
         run: flutter build ios --release
-        working-directory: ./
+        working-directory: ${{ env.root-dir }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
-          path: ./build/ios/iphoneos
+          path: ${{ env.root-dir }}/build/ios/iphoneos
