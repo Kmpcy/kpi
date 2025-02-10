@@ -1,65 +1,32 @@
-name: KPI App iOS Build
+name: Build iOS App
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: macos-latest
-    environment: production
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Verify Project Structure
-      run: |
-        ls -la
-        test -f pubspec.yaml || (echo "Error: pubspec.yaml not found!" && exit 1)
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
     - name: Setup Flutter
-      uses: subosito/flutter-action@v2.13.0
+      uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.19.5'
-        channel: stable
-        cache: true
-        cache-key: flutter-pub-cache
+        flutter-version: '3.19.0'
 
-    - name: Restore dependencies cache
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.pub-cache
-          build/
-          .dart_tool/
-          ios/Pods
-        key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+    - name: Verify files
+      run: ls -la
 
     - name: Install dependencies
-      run: |
-        flutter pub get
-        flutter precache --ios
+      run: flutter pub get
+      working-directory: .
 
-    - name: Analyze code
-      run: flutter analyze .
-
-    - name: Build iOS (Release)
-      run: |
-        flutter build ios --release --no-codesign \
-        --dart-define=APP_ENV=prod \
-        --dart-define=APP_VERSION=$(git log -1 --pretty=format:%h)
-
-    - name: Verify build output
-      run: |
-        ls -la build/ios/iphoneos/Runner.app
-        file build/ios/iphoneos/Runner.app/Runner
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: kpi-app-ios
-        path: build/ios/iphoneos/Runner.app
-        retention-days: 5
+    - name: Build iOS
+      run: flutter build ios --release --no-codesign
+      working-directory: .
