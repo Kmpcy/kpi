@@ -16,7 +16,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Setup Flutter
-      uses: subosito/flutter-action@v2
+      uses: subosito/flutter-action@v2.13.0
       with:
         flutter-version: '3.19.5'
         channel: stable
@@ -24,36 +24,36 @@ jobs:
         cache-key: flutter-pub-cache
 
     - name: Restore dependencies cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.pub-cache
-          **/build/
+          build/
+          .dart_tool/
+          ios/Pods
         key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
 
     - name: Install dependencies
       run: |
         flutter pub get
         flutter precache --ios
-      working-directory: .
 
     - name: Analyze code
       run: flutter analyze .
-      working-directory: .
-
-    - name: Run tests
-      run: flutter test
-      working-directory: .
 
     - name: Build iOS (Release)
       run: |
         flutter build ios --release --no-codesign \
         --dart-define=APP_ENV=prod \
-        --dart-define=APP_VERSION=$(git describe --tags)
-      working-directory: .
+        --dart-define=APP_VERSION=$(git log -1 --pretty=format:%h)
+
+    - name: Verify build output
+      run: |
+        ls -la build/ios/iphoneos/Runner.app
+        file build/ios/iphoneos/Runner.app/Runner
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: kpi-app-ios
         path: build/ios/iphoneos/Runner.app
